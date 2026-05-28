@@ -682,7 +682,7 @@ function renderProducts(filter = 'all') {
       <div class="product-desc">${p.desc}</div>
       <div class="product-footer">
         <div class="product-price">฿${p.price.toLocaleString()}<small>/ ${p.size}</small></div>
-        <button class="ask-btn" onclick="askAbout('${p.sku}', '${p.name.replace(/'/g, '')}')">ถามพี่หมิว</button>
+        <button class="ask-btn" onclick="askAbout('${p.name.replace(/'/g, '')}')">ถามพี่หมิว</button>
       </div>
     </div>
   `).join('');
@@ -694,12 +694,20 @@ function filterCat(btn, cat) {
   renderProducts(cat);
 }
 
-function askAbout(sku, name) {
+function askAbout(name) {
   // เปิดแชทถ้ายังไม่เปิด — Dify iframe จะรับ context ผ่าน URL พารามิเตอร์ไม่ได้ตรง ๆ
-  // ดังนั้นแค่เปิดแชทให้ผู้ใช้พิมพ์คำถามเอง
+  // ดังนั้นแค่เปิดแชทแล้ว copy คำถามให้ผู้ใช้
   toggleChat();
-  // แสดง toast แนะนำ
-  showHint(`ทักพี่หมิวว่า: "ขอข้อมูล ${sku} ${name} ค่ะ"`);
+  const msg = `ขอข้อมูล${name} หน่อยค่ะ`;
+  // ลอง copy ไปยัง clipboard อัตโนมัติ
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(msg).then(
+      () => showHint(`📋 Copy แล้ว — วางในช่องแชทได้เลย:\n"${msg}"`),
+      () => showHint(`พิมพ์ในแชทว่า:\n"${msg}"`)
+    );
+  } else {
+    showHint(`พิมพ์ในแชทว่า:\n"${msg}"`);
+  }
 }
 
 function showHint(text) {
